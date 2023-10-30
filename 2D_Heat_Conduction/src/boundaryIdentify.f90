@@ -24,15 +24,17 @@ module boundaryIdentify
         end do
     end subroutine create_boundary
 
-    subroutine export_boundary(nx,ny,boundNodes,nodes_number,boundary_file)
-        integer, intent(in)  :: nx, ny, boundNodes(nx*ny), nodes_number(nx,ny), boundary_file
-
+    subroutine export_boundary(nx,ny,boundNodes,nodes_number)
+        integer, intent(in)  :: nx, ny, boundNodes(nx*ny), nodes_number(nx,ny)
         integer i,j
+
+        open(unit=23,file='./mesh/boundary.dat')
         do i=1, nx
             do j=1,ny
-                write(boundary_file,*) nodes_number(i,j), ",", boundNodes(nodes_number(i,j))
+                write(23,*) nodes_number(i,j), ",", boundNodes(nodes_number(i,j))
             end do
         end do
+        close(23)
     end subroutine export_boundary
 
 end module boundaryIdentify

@@ -1,35 +1,36 @@
 module boundaryCondition
 
     contains
-    subroutine BCsetValues(nOn,boundNodes,Kg,T1,T2,T3,T4,Kg_out,F)
-        integer, intent(in) :: nOn,boundNodes(nOn)
-        real,    intent(in) :: Kg(nOn,nOn),T1,T2,T3,T4
-        real,    intent(out):: Kg_out(nOn,nOn),F(nOn)
-        integer             :: i,j
-        Kg_out(:,:) = Kg(:,:)
-        do i=1, nOn
-            F(i)=0.
-            do j=1, nOn
-                if(boundNodes(j).eq.1) then 
-                    Kg_out(i,j) = 0.
-                    F(i) = F(i) - Kg(i,j)*T1
-                else if(boundNodes(j).eq.2) then 
-                    Kg_out(i,j) = 0.
-                    F(i) = F(i) - Kg(i,j)*T2
-                else if(boundNodes(j).eq.3) then 
-                    Kg_out(i,j) = 0.
-                    F(i) = F(i) - Kg(i,j)*T3
-                else if(boundNodes(j).eq.4) then 
-                    Kg_out(i,j) = 0.
-                    F(i) = F(i) - Kg(i,j)*T4
-                end if
-            end do
-            if(boundNodes(i).ne.0) then
-                F(i)=0.
-                Kg_out(i,:) = 0.
+    subroutine BCsetValues(nOn,boundNodes,TBound,nonZ,csc_Krow_idx,csc_Kcol_idx,csc_Kval,csc_Kval1,nONBCN,FnonBC,nodesNonBC,nodeVar)
+        integer, intent(in) :: nOn,boundNodes(nOn),nONBCN,nonZ,csc_Krow_idx(nonZ),csc_Kcol_idx(nonZ)
+        real,    intent(in) :: TBound(4)
+        double precision, intent(in)  :: csc_Kval(nonZ)
+        double precision, intent(out) :: csc_Kval1(nonZ)
+        real,    intent(out):: FnonBC(nONBCN)
+        integer, intent(out):: nodeVar(nONBCN)
+        integer             :: i,currentRow,previousRow,Findex,countZeros
+        FnonBC(:) = 0.
+        Findex = 1
+        csc_Kval1(:) = csc_Kval(:)
+        previousRow = csc_Krow_idx(1)
+        nodeVar(1) = csc_Krow_idx(1)
+        countZeros = 0
+        do i=1, nonZ
+            currentRow = csc_Krow_idx(i)
+            if(currentRow.ne.previousRow) then
+                Findex = Findex + 1
+                previousRow = currentRow 
+                nodeVar(Findex) = csc_Krow_idx(i)
+
+            end if
+            if(boundNodes(csc_Kcol_idx(i)).ne.0) then
+                countZeros = countZeros + 1
+                FnonBC(Findex) = FnonBC(Findex) - csc_Kval(i)*TBound(boundNodes(csc_Kcol_idx(i)))
+                csc_Kval1(i) = 0.
+                ! print*
             end if
         end do
-
+        nodesNonBC = nonZ - countZeros
     end subroutine BCsetValues
 
 end module boundaryCondition

@@ -51,15 +51,20 @@ module meshGenerator
         end do
     end subroutine create_elements
 
-    subroutine write_mesh_data(nx,ny,nodes,nodes_number,nodesPerElement,elements,nodes_file,elements_file,tec_file)
-        integer, intent(in)  :: nx, ny, nodes_number(nx,ny), elements((nx-1)*(ny-1),nodesPerElement), nodesPerElement, nodes_file, elements_file, tec_file
+    subroutine write_mesh_data(nx,ny,nodes,nodes_number,nodesPerElement,elements)
+        integer, intent(in)  :: nx, ny, nodes_number(nx,ny), elements((nx-1)*(ny-1),nodesPerElement), nodesPerElement
         real   , intent(in)  :: nodes(nx*ny,2)
 
         integer :: i,j,count_e
         count_e = 0
-        write(elements_file,*)  (nx-1)*(ny-1)
-        write(tec_file,*) "VARIABLES = ", "X ", "Y "
-        write(tec_file,*) "ZONE  I=",  nx, ",J=",ny, ", F=POINT"
+
+        open(unit=20,file='./mesh/nodes.dat')
+        open(unit=21,file='./mesh/elements.dat')
+        open(unit=22,file='./mesh/mesh.tec')
+
+        write(21,*)  (nx-1)*(ny-1)
+        write(22,*) "VARIABLES = ", "X ", "Y "
+        write(22,*) "ZONE  I=",  nx, ",J=",ny, ", F=POINT"
         open(unit=100,file='./mesh/dimensions.dat')
             write(100,"(i4)", advance="no"), nx
             write(100,"(a)", advance="no"), ","
@@ -69,12 +74,12 @@ module meshGenerator
         open(unit=100,file='./mesh/nodes_number.dat')
         do i=1, nx
             do j=1, ny
-                write(nodes_file,*) nodes(nodes_number(i,j),1),",", nodes(nodes_number(i,j),2)
+                write(20,*) nodes(nodes_number(i,j),1),",", nodes(nodes_number(i,j),2)
                 write(100,"(i5)", advance="no") nodes_number(i,j)
                 write(100,"(a)", advance="no"), ","
                 if((i.ne.nx).and.(j.ne.ny)) then
                     count_e = count_e + 1
-                    write(elements_file,*) count_e, elements(count_e,1), elements(count_e,2), elements(count_e,3), elements(count_e,4)
+                    write(21,*) count_e, elements(count_e,1), elements(count_e,2), elements(count_e,3), elements(count_e,4)
                 end if
             end do
         end do
@@ -82,8 +87,12 @@ module meshGenerator
 
         do j=1, ny
             do i=1, nx
-                write(tec_file,*) nodes(nodes_number(i,j),1), nodes(nodes_number(i,j),2)
+                write(22,*) nodes(nodes_number(i,j),1), nodes(nodes_number(i,j),2)
             end do
         end do
+
+        close(20)
+        close(21)
+        close(22)
     end subroutine write_mesh_data
 end module meshGenerator

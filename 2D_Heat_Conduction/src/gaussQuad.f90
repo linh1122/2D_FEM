@@ -1,12 +1,12 @@
 module gaussQuad
-    use globalVariables
     use shapeFunctions
     use jacobians
 
     contains
     subroutine setGauss(xi,w,nOGp)
-        real, intent(out) :: xi(nOGp,2)
-        real, intent(out) :: w(nOGp)
+        integer, intent(in)  :: nOGp
+        real   , intent(out) :: xi(nOGp,2)
+        real   , intent(out) :: w(nOGp)
         xi(1,1)=-dsqrt(3.d0/5.d0)
         xi(1,2)=xi(1,1)
         xi(2,1)=0.d0
@@ -36,9 +36,9 @@ module gaussQuad
         w(9)=w(1)
     end subroutine setGauss
 
-    subroutine calKGauss(elementNodes,nONPe,nodes,nOGp,nOn,i,j,Ke_ij)
+    subroutine calKGauss(elementNodes,nONPe,nodes,nOGp,nOn,i,j,Ke_ij,xi,w)
         integer, intent(in) :: nOGp,nONPe,nOn,i,j,elementNodes(nONPe)
-        real,    intent(in) :: nodes(nOn,2)
+        real,    intent(in) :: nodes(nOn,2),xi(nOGp,2),w(nOGp)
         real,    intent(out):: Ke_ij
         integer             :: k
         real                :: a,b,c,d,dpsi(nONPe,2),Je,xxi,xeta,yxi,yeta

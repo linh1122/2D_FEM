@@ -1,11 +1,14 @@
 module globalVariables
-    integer, parameter ::  iter=100,nx=120,ny=120,nOn=nx*ny,nOe=(nx-1)*(ny-1),nONPe=4,nOGp=9,nONBCN=nOn-(2*nx+2*(ny-2))
-    real,    parameter ::  lengthx=2., lengthy=4, T1=293., T2=193., T3=473., T4=473.
-    integer            ::  stat,nnum(nx,ny), elements(nOe,nONPe), boundNodes(nOn), nodeVar(nONBCN), nonZ
-    real               ::  nodes(nOn,2), Kg(nOn,nOn), KgBC(nOn,nOn), xi(nOGp,2), w(nOGp), F(nOn),KnonBC(nONBCN,nONBCN),FnonBC(nONBCN),T(nONBCN)
-    double precision,    dimension (:), allocatable :: Kval
-    integer, dimension (:), allocatable :: Kcol_idx,Krow_ptr
+    integer                                        :: iter,prtn_iter,nx,ny,nONPe,nOGp
+    integer                                        :: nONBCN,nOe,nOn,nonZ,nodesNonBC
+    real                                           :: lengthx,lengthy,TBound(4)
+    double precision                               :: minimum_tol
+    integer         ,   dimension (:,:), allocatable :: nnum,elements,nodes_adj
+    integer         ,   dimension (:)  , allocatable :: boundNodes,nodeVar
+    real            ,   dimension (:,:), allocatable :: nodes,xi
+    real            ,   dimension (:)  , allocatable :: w,FnonBC
+    double precision,   dimension (:)  , allocatable :: T, T_final
 
-    double precision,    dimension (:), allocatable :: csc_Kval
-    integer, dimension (:), allocatable :: csc_Kcol_idx,csc_Krow_idx
+    double precision,   dimension (:), allocatable :: Kval, csc_Kval, csc_Kval_BC
+    integer,            dimension (:), allocatable :: Kcol_idx,Krow_ptr,csc_Kcol_idx,csc_Krow_idx,csc_Kcol_idx_BC,csc_Krow_idx_BC
 end module globalVariables

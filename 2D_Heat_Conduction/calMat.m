@@ -1,34 +1,25 @@
-K = readmatrix('./data/matrix/K_NON_BOUNDARY.dat');
-F = readmatrix('./data/matrix/F_NON_BOUNDARY.dat');
-
-innerNode     = readmatrix('./data/matrix/NON_BOUNDARY_NODE_NUMBER.dat');
 nodeCondition = readmatrix('./mesh/boundary.dat');
-
 TOnBoundary   = readmatrix('./data/matrix/T_ON_BOUNDARY.dat');
 
 nodes = readmatrix('./mesh/nodes.dat');
-
 dimensions = readmatrix('./mesh/dimensions.dat');
-
 nn = readmatrix('./mesh/nodes_number.dat');
+nodeVar = readmatrix('./data/matrix/NODE_VARIABLES.dat');
 
-count = 0;
-nodesNumber = zeros(dimensions(1,1),dimensions(1,2));
-for i=1:dimensions(1,1)
-    for j=1:dimensions(1,2)
-        count = count + 1;
-        nodesNumber(i,j) = nn(1,count);
-    end
-end
+row = readmatrix('./data/matrix/CSC_ROW.dat');
+col = readmatrix('./data/matrix/CSC_COL.dat');
+val = readmatrix('./data/matrix/CSC_VAL.dat');
 
-F_t = transpose(F);
-T = K\F_t;
+F = readmatrix('./data/matrix/F.dat');
+F_T = transpose(F);
 
-numberOfNodes = size(nodeCondition,1)
+C = sparse(row',col',val');
+size(F_T)
 
-size(nodes)
-size(T)
-size(nn)
+A = full(C);
+T = A\F_T;
+numberOfNodes = size(nodeCondition,1);
+
 
 T_final = zeros(numberOfNodes,1);
 count = 0;
@@ -40,6 +31,19 @@ for i=1:numberOfNodes
         T_final(i,1)=T(count,1);
     end
 end
+% T_final
+
+count = 0;
+nodesNumber = zeros(dimensions(1,1),dimensions(1,2));
+for i=1:dimensions(1,1)
+    for j=1:dimensions(1,2)
+        count = count + 1;
+        nodesNumber(i,j) = nn(1,count);
+    end
+end
+% nn
+% nodesNumber
+% nodes
 
 fileID = fopen("./data/result.tec",'w');
 fprintf(fileID,'%12s %12s %12s %12s\r\n','VARIABLES = ','X', 'Y', 'T');
@@ -50,6 +54,9 @@ for j=1:dimensions(1,2)
     end
 end
 fclose(fileID);
+
+disp('job done');
+
 
 
 
